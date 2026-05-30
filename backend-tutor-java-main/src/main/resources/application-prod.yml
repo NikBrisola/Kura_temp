@@ -1,0 +1,43 @@
+# ==============================================================================
+# KURA · Profile: prod
+# Banco: Oracle 19c (oracle.fiap.com.br:1521/orcl — schema compartilhado .NET/Java).
+# TODAS as variáveis abaixo são obrigatórias. Ausência causa falha na inicialização.
+# ==============================================================================
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      connection-timeout: 20000        # ms antes de lançar exceção ao pedir conexão do pool
+      maximum-pool-size: 5             # Oracle XE suporta poucas conexões simultâneas
+      initialization-fail-timeout: 1   # falha rápido no startup se o DB não responder
+
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true   # schema compartilhado com .NET — trata estado atual como baseline
+
+kura:
+  jwt:
+    # Sem fallback — ausência de JWT_SECRET causa startup failure intencional
+    secret: ${JWT_SECRET}
+    expiration-ms: 900000
+
+logging:
+  level:
+    br.com.clyvo.kura: INFO
+    org.hibernate.SQL: WARN
+    org.flywaydb: INFO
